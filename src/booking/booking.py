@@ -5,21 +5,29 @@ import os
 from datetime import datetime
 from prettytable import PrettyTable
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 import src.booking.constants as const
 from src.booking.filter import BookingFilter
 from src.booking.report import BookingReport
 
 
 class Booking(webdriver.Chrome):
-    def __init__(self, wait: int = 10, maximize: bool = False, driver_path: str = const.CHROME_DRIVER_PATH,
-                 teardown: bool = False) -> None:
+    def __init__(self, wait: int = 10, headless: bool = const.HEADLESS, maximize: bool = False,
+                 driver_path: str = const.CHROME_DRIVER_PATH, teardown: bool = False) -> None:
         self.wait = wait
         self.maximize = maximize
-        self.driver_path = driver_path
         self.teardown = teardown
         os.environ['PATH'] += ":" + driver_path
-        super().__init__()
+        options = Options()
+        if headless:
+            options.headless = True
+            options.add_argument("--window-size=1920,1080")
+            user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "\
+                         "Chrome/60.0.3112.50 Safari/537.36"
+            options.add_argument(f'user-agent={user_agent}')
+        super().__init__(chrome_options=options)
         self.implicitly_wait(self.wait)
         if self.maximize:
             self.maximize_window()
@@ -30,7 +38,10 @@ class Booking(webdriver.Chrome):
 
     def land_first_page(self) -> None:
         self.get(const.BASE_URL)
-        self.find_element(By.XPATH, '//*[@id="onetrust-accept-btn-handler"]').click()
+        try:
+            self.find_element(By.XPATH, '//*[@id="onetrust-accept-btn-handler"]').click()
+        except NoSuchElementException as e:
+            pass
 
     def change_currency(self, currency: str) -> None:
         currency_path = f'a[data-modal-header-async-url-param*="selected_currency={currency}"'
@@ -65,7 +76,7 @@ class Booking(webdriver.Chrome):
             self.find_element(By.CSS_SELECTOR, 'button[aria-label="Increase number of Rooms"]').click()
 
     def search(self) -> None:
-        self.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+        self.find_element(By.CLASS_NAME, "sb-searchbox__button ").click()
 
     def apply_filter(self, star_values: list):
         booking_filter = BookingFilter(driver=self)
@@ -86,7 +97,7 @@ class Booking(webdriver.Chrome):
         timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         search_data = PrettyTable(field_names=["Search Parameter", "Value"])
         search_params = [[k, v] for k, v in const.__dict__.items() if not k.startswith('_') and
-                         k not in ["BASE_URL", "CHROME_DRIVER_PATH"]]
+                         k not in ["BASE_URL", "CHROME_DRIVER_PATH", "HEADLESS"]]
         search_data.add_rows(search_params)
         report = f"Search conducted at: {timestamp}\n\n" +\
                  hotel_data.get_string() +\

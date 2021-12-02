@@ -4,6 +4,7 @@
 # setup
 BASE_URL = "https://www.booking.com"
 CHROME_DRIVER_PATH = r"/home/felix/Documents/coding/python/web_scraping/chromedriver_linux64/"
+HEADLESS = True
 
 # trip details
 CURRENCY = "USD"
