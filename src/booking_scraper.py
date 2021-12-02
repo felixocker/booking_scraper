@@ -16,7 +16,7 @@ def main() -> None:
         bot.search()
         bot.apply_filter(star_values=const.STARS)
         bot.refresh()
-        bot.report_results()
+        bot.report_results(print_to_console=True)
         # keep open
         time.sleep(5)
 

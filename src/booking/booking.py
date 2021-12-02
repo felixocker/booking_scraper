@@ -2,6 +2,7 @@
 """bot for booking.com"""
 
 import os
+from datetime import datetime
 from prettytable import PrettyTable
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -71,12 +72,30 @@ class Booking(webdriver.Chrome):
         booking_filter.apply_star_rating(star_values)
         booking_filter.sort_by_lowest_price()
 
-    def report_results(self):
+    def create_results_table(self):
         # TODO: extract the following pages too
         hotel_list = self.find_element(By.ID, 'search_results_table')
         report = BookingReport(hotel_list)
-        table = PrettyTable(field_names=["Hotel Name", "Stars", "Price", "Avg. Review,", "No. of Reviews"])
+        table = PrettyTable(field_names=["Hotel Name", "Stars", "Price", "Avg. Review", "No. of Reviews"])
         clean_list = [list(elem.values()) for elem in report.pull_data()]
         table.add_rows(clean_list)
-        # TODO: save report as file
-        print(table)
+        return table
+
+    def report_results(self, print_to_console: bool = False) -> None:
+        hotel_data = self.create_results_table()
+        timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+        search_data = PrettyTable(field_names=["Search Parameter", "Value"])
+        search_params = [[k, v] for k, v in const.__dict__.items() if not k.startswith('_') and
+                         k not in ["BASE_URL", "CHROME_DRIVER_PATH"]]
+        search_data.add_rows(search_params)
+        report = f"Search conducted at: {timestamp}\n\n" +\
+                 hotel_data.get_string() +\
+                 "\n\n" +\
+                 "Search input was:\n\n" +\
+                 search_data.get_string()
+        if print_to_console:
+            print(report)
+        # save report as file
+        os.remove("report.txt")
+        with open("report.txt", "w") as f:
+            f.write(report)
