@@ -17,8 +17,6 @@ def main() -> None:
         bot.apply_filter(star_values=const.STARS)
         bot.refresh()
         bot.report_results(print_to_console=True)
-        # keep open
-        time.sleep(5)
 
 
 if __name__ == "__main__":
