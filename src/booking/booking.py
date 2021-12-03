@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import src.booking.constants as const
 from src.booking.filter import BookingFilter
+from src.booking.optimize import Optimizer
 from src.booking.report import BookingReport
 
 
@@ -19,7 +20,8 @@ class Booking(webdriver.Chrome):
         self.wait = wait
         self.maximize = maximize
         self.teardown = teardown
-        self.data = None
+        self.data: list = []
+        self.optimized: list = []
         os.environ['PATH'] += ":" + driver_path
         options = Options()
         if headless:
@@ -90,20 +92,30 @@ class Booking(webdriver.Chrome):
         report = BookingReport(hotel_list)
         self.data = report.pull_data()
 
-    def create_results_table(self):
-        table = PrettyTable(field_names=list(self.data[0].keys()))
-        clean_list = [list(elem.values()) for elem in self.data]
+    def optimize(self) -> None:
+        optimizer = Optimizer(self, quantity=const.LIMIT)
+        self.optimized = optimizer.optimize()
+
+    @staticmethod
+    def create_results_table(data: list):
+        table = PrettyTable(field_names=list(data[0].keys()))
+        clean_list = [list(elem.values()) for elem in data]
         table.add_rows(clean_list)
         return table
 
     def report_results(self, print_to_console: bool = False) -> None:
-        hotel_data = self.create_results_table()
+        hotel_data = self.create_results_table(self.data)
+        best_fit_data = self.create_results_table(self.optimized)
         timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         search_data = PrettyTable(field_names=["Search Parameter", "Value"])
         search_params = [[k, v] for k, v in const.__dict__.items() if not k.startswith('_') and
                          k not in ["BASE_URL", "CHROME_DRIVER_PATH", "HEADLESS"]]
         search_data.add_rows(search_params)
         report = f"Search conducted at: {timestamp}\n\n" +\
+                 "Your best fits are:\n\n" + \
+                 best_fit_data.get_string() + \
+                 "\n\n" + \
+                 "All results are:\n\n" +\
                  hotel_data.get_string() +\
                  "\n\n" +\
                  "Search input was:\n\n" +\

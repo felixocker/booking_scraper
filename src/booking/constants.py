@@ -17,3 +17,11 @@ CHILDREN = [8, 13]
 ROOMS = 2
 # provide a list of desired hotel star ratings
 STARS = [3, 4]
+
+# weightings for optimization in the form [weight, best, worst]
+LIMIT = 5
+WEIGHTS = {
+    "average review": [1, 10.0, 0.0],
+    "price": [1, 0.0, 5000.0],
+    "distance [km]": [1, 0.0, 3.0],
+}
