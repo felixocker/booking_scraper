@@ -35,7 +35,6 @@ class BookingReport:
             else:
                 review_rating, review_amount = "", 0
             dist_str = hotel_box.find_element(By.CSS_SELECTOR, 'span[data-testid="distance"]').get_attribute('innerHTML').strip()
-            print(dist_str)
             if " km " in dist_str:
                 distance = float(dist_str.split(" km ")[0])
             elif " m " in dist_str:
