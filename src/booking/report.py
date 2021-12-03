@@ -33,13 +33,22 @@ class BookingReport:
                 review_rating = review.split('\n')[0]
                 review_amount = review.split('\n')[-1].split(" ")[0]
             else:
-                review_rating, review_amount = "-", 0
+                review_rating, review_amount = "", 0
+            dist_str = hotel_box.find_element(By.CSS_SELECTOR, 'span[data-testid="distance"]').get_attribute('innerHTML').strip()
+            print(dist_str)
+            if " km " in dist_str:
+                distance = float(dist_str.split(" km ")[0])
+            elif " m " in dist_str:
+                distance = float(dist_str.split(" m ")[0])/1000
+            else:
+                distance = ""
             hotel_data = {
                 "name": name,
                 "stars": rating,
                 "price": price_low,
                 "average review": review_rating,
                 "number of reviews": review_amount,
+                "distance [km]": distance,
             }
             all_hotel_data.append(hotel_data)
         return all_hotel_data

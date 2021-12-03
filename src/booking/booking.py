@@ -87,7 +87,7 @@ class Booking(webdriver.Chrome):
         # TODO: extract the following pages too
         hotel_list = self.find_element(By.ID, 'search_results_table')
         report = BookingReport(hotel_list)
-        table = PrettyTable(field_names=["Hotel Name", "Stars", "Price", "Avg. Review", "No. of Reviews"])
+        table = PrettyTable(field_names=["Hotel Name", "Stars", "Price", "Avg. Review", "No. of Reviews", "Distance [km]"])
         clean_list = [list(elem.values()) for elem in report.pull_data()]
         table.add_rows(clean_list)
         return table
