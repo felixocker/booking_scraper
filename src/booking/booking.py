@@ -19,6 +19,7 @@ class Booking(webdriver.Chrome):
         self.wait = wait
         self.maximize = maximize
         self.teardown = teardown
+        self.data = None
         os.environ['PATH'] += ":" + driver_path
         options = Options()
         if headless:
@@ -78,17 +79,20 @@ class Booking(webdriver.Chrome):
     def search(self) -> None:
         self.find_element(By.CLASS_NAME, "sb-searchbox__button ").click()
 
-    def apply_filter(self, star_values: list):
+    def apply_filter(self, star_values: list) -> None:
         booking_filter = BookingFilter(driver=self)
         booking_filter.apply_star_rating(star_values)
         booking_filter.sort_by_lowest_price()
 
-    def create_results_table(self):
+    def extract_data(self) -> None:
         # TODO: extract the following pages too
         hotel_list = self.find_element(By.ID, 'search_results_table')
         report = BookingReport(hotel_list)
-        table = PrettyTable(field_names=["Hotel Name", "Stars", "Price", "Avg. Review", "No. of Reviews", "Distance [km]"])
-        clean_list = [list(elem.values()) for elem in report.pull_data()]
+        self.data = report.pull_data()
+
+    def create_results_table(self):
+        table = PrettyTable(field_names=list(self.data[0].keys()))
+        clean_list = [list(elem.values()) for elem in self.data]
         table.add_rows(clean_list)
         return table
 

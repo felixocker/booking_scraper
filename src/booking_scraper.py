@@ -16,6 +16,7 @@ def main() -> None:
         bot.search()
         bot.apply_filter(star_values=const.STARS)
         bot.refresh()
+        bot.extract_data()
         bot.report_results(print_to_console=True)
 
 
