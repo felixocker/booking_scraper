@@ -15,7 +15,6 @@ def main() -> None:
         bot.specify_booking(adults=const.ADULTS, children=const.CHILDREN, rooms=const.ROOMS)
         bot.search()
         bot.apply_filter(star_values=const.STARS)
-        bot.refresh()
         bot.extract_data()
         bot.optimize()
         bot.report_results(print_to_console=True)

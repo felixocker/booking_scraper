@@ -38,7 +38,7 @@ class BookingReport:
             if " km " in dist_str:
                 distance = float(dist_str.split(" km ")[0])
             elif " m " in dist_str:
-                distance = float(dist_str.split(" m ")[0])/1000
+                distance = float(dist_str.split(" m ")[0].replace(",", ""))/1000
             else:
                 distance = ""
             hotel_data = {

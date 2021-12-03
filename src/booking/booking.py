@@ -84,13 +84,16 @@ class Booking(webdriver.Chrome):
     def apply_filter(self, star_values: list) -> None:
         booking_filter = BookingFilter(driver=self)
         booking_filter.apply_star_rating(star_values)
-        booking_filter.sort_by_lowest_price()
 
     def extract_data(self) -> None:
-        # TODO: extract the following pages too
+        self.refresh()
         hotel_list = self.find_element(By.ID, 'search_results_table')
-        report = BookingReport(hotel_list)
-        self.data = report.pull_data()
+        page_report = BookingReport(hotel_list)
+        self.data.extend(page_report.pull_data())
+        next_button = self.find_element(By.CSS_SELECTOR, 'button[aria-label="Next page"]')
+        if next_button.is_enabled():
+            next_button.click()
+            self.extract_data()
 
     def optimize(self) -> None:
         optimizer = Optimizer(self, quantity=const.LIMIT)
