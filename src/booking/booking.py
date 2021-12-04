@@ -2,7 +2,7 @@
 """bot for booking.com"""
 
 import os
-from datetime import datetime
+from datetime import date, datetime
 from prettytable import PrettyTable
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -59,10 +59,27 @@ class Booking(webdriver.Chrome):
         place_field.send_keys(place)
         self.find_element(By.CSS_SELECTOR, 'li[data-i="0"]').click()
 
-    def select_date(self, startdate: str, enddate: str) -> None:
-        # TODO: make this work for months other than current and next -> click arrow
-        self.find_element(By.CSS_SELECTOR, f'td[data-date="{startdate}"]').click()
-        self.find_element(By.CSS_SELECTOR, f'td[data-date="{enddate}"]').click()
+    def switch_month(self, displayed_date: str, desired_date: str) -> None:
+        assert int(desired_date.replace("-", "")) > int(displayed_date.replace("-", "")),\
+            f"start date ({displayed_date}) not before end date ({desired_date})"
+        start_year, start_month = displayed_date.split("-")[:2]
+        end_year, end_month = desired_date.split("-")[:2]
+        next_button = self.find_element(By.CSS_SELECTOR, 'div[data-bui-ref="calendar-next"]')
+        delta = (int(end_year) - int(start_year)) * 12 + int(end_month) - int(start_month)
+        for _ in range(delta):
+            if not next_button.is_enabled():
+                print("error: date not (yet) available")
+                exit(1)
+            next_button.click()
+
+    def select_date(self, start_date: str, end_date: str) -> None:
+        # NOTE: assumes that the current month is initially displayed
+        today = date.today()
+        today_date = today.strftime("%Y-%m-%d")
+        self.switch_month(today_date, start_date)
+        self.find_element(By.CSS_SELECTOR, f'td[data-date="{start_date}"]').click()
+        self.switch_month(start_date, end_date)
+        self.find_element(By.CSS_SELECTOR, f'td[data-date="{end_date}"]').click()
 
     def specify_booking(self, adults: int, children: list = None, rooms: int = 1) -> None:
         self.find_element(By.ID, 'xp__guests__toggle').click()

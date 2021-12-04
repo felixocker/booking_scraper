@@ -9,8 +9,8 @@ HEADLESS = True
 # trip details
 CURRENCY = "USD"
 PLACE = "New York"
-START_DATE = "2021-12-20"
-END_DATE = "2021-12-28"
+START_DATE = "2022-02-20"
+END_DATE = "2022-02-28"
 ADULTS = 2
 # for children, provide a list with their ages
 CHILDREN = [8, 13]

@@ -11,7 +11,7 @@ def main() -> None:
         bot.land_first_page()
         bot.change_currency(const.CURRENCY)
         bot.select_place(const.PLACE)
-        bot.select_date(startdate=const.START_DATE, enddate=const.END_DATE)
+        bot.select_date(start_date=const.START_DATE, end_date=const.END_DATE)
         bot.specify_booking(adults=const.ADULTS, children=const.CHILDREN, rooms=const.ROOMS)
         bot.search()
         bot.apply_filter(star_values=const.STARS)
