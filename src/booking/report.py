@@ -39,6 +39,7 @@ class BookingReport:
                 distance = float(dist_str.split(" m ")[0].replace(",", ""))/1000
             else:
                 distance = ""
+            link = hotel_box.find_element(By.CSS_SELECTOR, 'a[data-testid="title-link"]').get_attribute('href')
             hotel_data = {
                 "name": name,
                 "stars": rating,
@@ -46,6 +47,7 @@ class BookingReport:
                 "average review": review_rating,
                 "number of reviews": review_amount,
                 "distance [km]": distance,
+                "quick link": link,
             }
             all_hotel_data.append(hotel_data)
         return all_hotel_data
