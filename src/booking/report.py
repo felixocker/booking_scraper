@@ -4,6 +4,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import NoSuchElementException
+import src.booking.constants as const
 
 
 class BookingReport:
@@ -16,6 +17,13 @@ class BookingReport:
 
     def pull_data(self):
         all_hotel_data = []
+        currencies = {
+            "USD": "US$",
+            "EUR": "€ ",
+            "GBP": "£",
+            "CHF": "CHF ",
+        }
+        assert const.CURRENCY in currencies, f"currency not supported, please choose one of {list(currencies.keys())}"
         for hotel_box in self.hotel_boxes:
             name = hotel_box.find_element(By.CSS_SELECTOR, 'div[data-testid="title"]').get_attribute('innerHTML').strip()
             try:
@@ -23,9 +31,8 @@ class BookingReport:
             except NoSuchElementException as e:
                 star_images = hotel_box.find_element(By.CSS_SELECTOR, 'div[data-testid="rating-squares"]')
             rating = len(star_images.find_elements(By.CSS_SELECTOR, 'span[aria-hidden="true"]'))
-            price = hotel_box.find_element(By.CSS_SELECTOR, 'div[data-testid="price-and-discounted-price"]').text[3:]
-            # TODO: the following is specific for USD - make generic
-            price_low = float(price.split("US$")[-1].replace(",", ""))
+            price = hotel_box.find_element(By.CSS_SELECTOR, 'div[data-testid="price-and-discounted-price"]').text
+            price_low = float(price.split(currencies[const.CURRENCY])[-1].replace(",", ""))
             try:
                 review = hotel_box.find_element(By.CSS_SELECTOR, 'div[data-testid="review-score"]').text
                 review_rating = float(review.split('\n')[0])
